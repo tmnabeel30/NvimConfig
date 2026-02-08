@@ -220,6 +220,32 @@ return {
       return site_packages
     end
 
+    local function get_python_site_packages(python_path)
+      if not python_path or python_path == "" then
+        return {}
+      end
+      local cmd = python_path
+        .. " -c \"import site; paths = site.getsitepackages() + [site.getusersitepackages()]; print('\\\\n'.join(paths))\""
+      local output = vim.fn.systemlist(cmd)
+      if vim.v.shell_error ~= 0 then
+        return {}
+      end
+      return output
+    end
+
+    local function add_unique_paths(target, paths)
+      local seen = {}
+      for _, path in ipairs(target) do
+        seen[path] = true
+      end
+      for _, path in ipairs(paths) do
+        if path and path ~= "" and not seen[path] then
+          table.insert(target, path)
+          seen[path] = true
+        end
+      end
+    end
+
     vim.lsp.config("pyright", {
       capabilities = capabilities,
       root_dir = function(fname)
@@ -247,9 +273,8 @@ return {
           config.settings.python.venvPath = venv_path
           config.settings.python.venv = venv_name
         end
-        for _, path in ipairs(get_venv_site_packages(venv_root)) do
-          table.insert(config.settings.python.analysis.extraPaths, path)
-        end
+        add_unique_paths(config.settings.python.analysis.extraPaths, get_venv_site_packages(venv_root))
+        add_unique_paths(config.settings.python.analysis.extraPaths, get_python_site_packages(python_path))
       end,
       settings = {
         python = {
