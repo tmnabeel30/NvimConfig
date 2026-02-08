@@ -92,15 +92,24 @@ return {
     end
 
     local function get_venv_python()
+      local venv = vim.env.VIRTUAL_ENV
+      local candidates = {}
+
+      if venv and venv ~= "" then
+        table.insert(candidates, venv .. "/bin/python")
+        table.insert(candidates, venv .. "/bin/python3")
+        table.insert(candidates, venv .. "/Scripts/python.exe")
+      end
+
       local cwd = vim.fn.getcwd()
-      local candidates = {
+      vim.list_extend(candidates, {
         cwd .. "/.venv/bin/python",
         cwd .. "/.venv/bin/python3",
         cwd .. "/.venv/Scripts/python.exe",
-      }
+      })
 
       for _, path in ipairs(candidates) do
-        if vim.fn.executable(path) == 1 and python_has_debugpy(path) then
+        if vim.fn.executable(path) == 1 then
           return path
         end
       end
@@ -111,15 +120,21 @@ return {
     -- Find Python 3.11 with debugpy
     local function get_python_path()
       local venv_option = vim.g.dap_python_venv
-      if venv_option == true or venv_option == "prompt" then
+      if venv_option ~= false then
         local venv_python = get_venv_python()
         if venv_python then
-          if venv_option == true then
-            return venv_python
-          end
-
-          local confirm = vim.fn.confirm("Use .venv for DAP?", "&Yes\n&No", 1)
-          if confirm == 1 then
+          if venv_option == "prompt" then
+            local confirm = vim.fn.confirm("Use .venv for DAP?", "&Yes\n&No", 1)
+            if confirm == 1 then
+              return venv_python
+            end
+          else
+            if not python_has_debugpy(venv_python) then
+              vim.notify(
+                "DAP: debugpy not found in venv. Install with: pip install debugpy",
+                vim.log.levels.WARN
+              )
+            end
             return venv_python
           end
         end
