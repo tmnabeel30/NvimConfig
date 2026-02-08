@@ -22,6 +22,7 @@ return {
         "ts_ls",
         "jsonls",
         "pyright",
+        "ruff",
         "bashls",
         "yamlls",
         "clangd",
