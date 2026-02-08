@@ -81,8 +81,50 @@ return {
     -- PYTHON CONFIGURATION
     -- ==========================================
     
+    local function python_has_debugpy(python_path)
+      local check = io.popen(python_path .. " -c 'import debugpy' 2>/dev/null && echo 'OK'")
+      if check then
+        local result = check:read("*l")
+        check:close()
+        return result == "OK"
+      end
+      return false
+    end
+
+    local function get_venv_python()
+      local cwd = vim.fn.getcwd()
+      local candidates = {
+        cwd .. "/.venv/bin/python",
+        cwd .. "/.venv/bin/python3",
+        cwd .. "/.venv/Scripts/python.exe",
+      }
+
+      for _, path in ipairs(candidates) do
+        if vim.fn.executable(path) == 1 and python_has_debugpy(path) then
+          return path
+        end
+      end
+
+      return nil
+    end
+
     -- Find Python 3.11 with debugpy
     local function get_python_path()
+      local venv_option = vim.g.dap_python_venv
+      if venv_option == true or venv_option == "prompt" then
+        local venv_python = get_venv_python()
+        if venv_python then
+          if venv_option == true then
+            return venv_python
+          end
+
+          local confirm = vim.fn.confirm("Use .venv for DAP?", "&Yes\n&No", 1)
+          if confirm == 1 then
+            return venv_python
+          end
+        end
+      end
+
       local possible_pythons = {
         "python3.11",
         "python3",
@@ -100,13 +142,8 @@ return {
             handle:close()
             
             if python_path and python_path ~= "" then
-              local check = io.popen(python_path .. " -c 'import debugpy' 2>/dev/null && echo 'OK'")
-              if check then
-                local result = check:read("*l")
-                check:close()
-                if result == "OK" then
-                  return python_path
-                end
+              if python_has_debugpy(python_path) then
+                return python_path
               end
             end
           end
