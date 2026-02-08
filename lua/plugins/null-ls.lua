@@ -6,11 +6,13 @@ return {
   },
   config = function()
     local null_ls = require("null-ls")
+    local ruff_diagnostics = require("none-ls.diagnostics.ruff")
+    local ruff_actions = require("none-ls.code_actions.ruff")
 
     null_ls.setup({
       sources = {
         -- ==========================================
-        -- FORMATTERS ONLY (No Linting)
+        -- FORMATTERS + LINTING
         -- ==========================================
         
         -- Lua
@@ -36,6 +38,8 @@ return {
           extra_args = { "--line-length", "88" },
         }),
         null_ls.builtins.formatting.isort,
+        ruff_diagnostics,
+        ruff_actions,
 
         -- C/C++
         null_ls.builtins.formatting.clang_format,

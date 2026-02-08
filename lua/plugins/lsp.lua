@@ -10,18 +10,16 @@ return {
     local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
     -- ==========================================
-    -- DISABLE MOST DIAGNOSTICS (No annoying errors)
+    -- DIAGNOSTICS (ENABLE + CONSISTENT)
     -- ==========================================
     vim.diagnostic.config({
-      virtual_text = false,        -- Don't show inline errors
-      signs = false,               -- Don't show error signs in gutter
-      underline = false,           -- Don't underline errors
-      update_in_insert = false,    -- Don't show errors while typing
+      virtual_text = { spacing = 2, prefix = "●" },
+      signs = true,
+      underline = true,
+      update_in_insert = false,
       severity_sort = true,
+      float = { border = "rounded", source = "if_many" },
     })
-
-    -- Completely disable diagnostics
-    vim.lsp.handlers["textDocument/publishDiagnostics"] = function() end
 
     -- ==========================================
     -- LSP ATTACH (KEYMAPS)
@@ -108,55 +106,27 @@ return {
       },
     })
 
-    -- PYTHON - NO TYPE CHECKING, NO LINTING
-    vim.lsp.config("pyright", { 
+    -- PYTHON - TYPE CHECKING (BASIC) + LINTING (RUFF)
+    vim.lsp.config("pyright", {
       capabilities = capabilities,
       settings = {
         python = {
           analysis = {
-            typeCheckingMode = "off",  -- ⭐ No type checking
-            diagnosticMode = "openFilesOnly",
-            useLibraryCodeForTypes = false,
+            typeCheckingMode = "basic",
+            diagnosticMode = "workspace",
+            useLibraryCodeForTypes = true,
             autoSearchPaths = true,
             autoImportCompletions = true,
-            
-            -- Disable ALL diagnostics
-            diagnosticSeverityOverrides = {
-              reportGeneralTypeIssues = "none",
-              reportOptionalMemberAccess = "none",
-              reportOptionalSubscript = "none",
-              reportOptionalCall = "none",
-              reportOptionalIterable = "none",
-              reportOptionalContextManager = "none",
-              reportOptionalOperand = "none",
-              reportTypedDictNotRequiredAccess = "none",
-              reportUntypedFunctionDecorator = "none",
-              reportUntypedClassDecorator = "none",
-              reportUntypedBaseClass = "none",
-              reportUntypedNamedTuple = "none",
-              reportPrivateUsage = "none",
-              reportConstantRedefinition = "none",
-              reportIncompatibleMethodOverride = "none",
-              reportIncompatibleVariableOverride = "none",
-              reportUnknownParameterType = "none",
-              reportUnknownArgumentType = "none",
-              reportUnknownLambdaType = "none",
-              reportUnknownVariableType = "none",
-              reportUnknownMemberType = "none",
-              reportMissingParameterType = "none",
-              reportMissingTypeArgument = "none",
-              reportInvalidTypeVarUse = "none",
-              reportCallInDefaultInitializer = "none",
-              reportUnnecessaryIsInstance = "none",
-              reportUnnecessaryCast = "none",
-              reportAssertAlwaysTrue = "none",
-              reportSelfClsParameterName = "none",
-              reportImplicitStringConcatenation = "none",
-              reportMissingImports = "none",           -- ⭐ No import errors
-              reportUndefinedVariable = "none",        -- ⭐ No undefined var errors
-              reportSyntaxErrors = "warning",          -- Only syntax errors as warnings
-            },
           },
+        },
+      },
+    })
+
+    vim.lsp.config("ruff", {
+      capabilities = capabilities,
+      init_options = {
+        settings = {
+          args = {},
         },
       },
     })
