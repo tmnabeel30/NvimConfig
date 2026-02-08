@@ -139,11 +139,40 @@ return {
       return system_python ~= "" and system_python or "python"
     end
 
+    local function get_python_venv(workspace)
+      local venv = vim.env.VIRTUAL_ENV
+      if venv and venv ~= "" then
+        local venv_name = vim.fn.fnamemodify(venv, ":t")
+        local venv_path = vim.fn.fnamemodify(venv, ":h")
+        if venv_name ~= "" and venv_path ~= "" then
+          return venv_path, venv_name
+        end
+      end
+
+      local candidates = { ".venv", "venv" }
+      for _, name in ipairs(candidates) do
+        local venv_dir = workspace .. "/" .. name
+        if vim.fn.isdirectory(venv_dir) == 1 then
+          return workspace, name
+        end
+      end
+
+      return nil, nil
+    end
+
     vim.lsp.config("pyright", {
       capabilities = capabilities,
       on_new_config = function(config, root_dir)
         local python_path = get_python_path(root_dir)
+        local venv_path, venv_name = get_python_venv(root_dir)
+        config.settings = config.settings or {}
+        config.settings.python = config.settings.python or {}
         config.settings.python.pythonPath = python_path
+        config.settings.python.defaultInterpreterPath = python_path
+        if venv_path and venv_name then
+          config.settings.python.venvPath = venv_path
+          config.settings.python.venv = venv_name
+        end
       end,
       settings = {
         python = {
