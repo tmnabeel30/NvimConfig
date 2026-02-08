@@ -107,8 +107,44 @@ return {
     })
 
     -- PYTHON - TYPE CHECKING (BASIC) + LINTING (RUFF)
+    local function get_python_path(workspace)
+      local venv = vim.env.VIRTUAL_ENV
+      if venv and venv ~= "" then
+        local venv_python = venv .. "/bin/python"
+        if vim.fn.filereadable(venv_python) == 1 then
+          return venv_python
+        end
+        local venv_python_win = venv .. "/Scripts/python.exe"
+        if vim.fn.filereadable(venv_python_win) == 1 then
+          return venv_python_win
+        end
+      end
+
+      local candidates = {
+        workspace .. "/.venv/bin/python",
+        workspace .. "/.venv/bin/python3",
+        workspace .. "/venv/bin/python",
+        workspace .. "/venv/bin/python3",
+        workspace .. "/.venv/Scripts/python.exe",
+        workspace .. "/venv/Scripts/python.exe",
+      }
+
+      for _, path in ipairs(candidates) do
+        if vim.fn.filereadable(path) == 1 then
+          return path
+        end
+      end
+
+      local system_python = vim.fn.exepath("python3")
+      return system_python ~= "" and system_python or "python"
+    end
+
     vim.lsp.config("pyright", {
       capabilities = capabilities,
+      on_new_config = function(config, root_dir)
+        local python_path = get_python_path(root_dir)
+        config.settings.python.pythonPath = python_path
+      end,
       settings = {
         python = {
           analysis = {
