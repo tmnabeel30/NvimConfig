@@ -7,10 +7,9 @@ return {
   config = function()
     local null_ls = require("null-ls")
     local ruff_diagnostics = require("none-ls.diagnostics.ruff")
-    local ruff_actions = require("none-ls.code_actions.ruff")
+    local has_ruff_actions, ruff_actions = pcall(require, "none-ls.code_actions.ruff")
 
-    null_ls.setup({
-      sources = {
+    local sources = {
         -- ==========================================
         -- FORMATTERS + LINTING
         -- ==========================================
@@ -39,11 +38,18 @@ return {
         }),
         null_ls.builtins.formatting.isort,
         ruff_diagnostics,
-        ruff_actions,
+        null_ls.builtins.diagnostics.mypy,
 
         -- C/C++
         null_ls.builtins.formatting.clang_format,
-      },
+      }
+
+    if has_ruff_actions then
+      table.insert(sources, ruff_actions)
+    end
+
+    null_ls.setup({
+      sources = sources,
       
       -- Auto-format on save (optional)
       on_attach = function(client, bufnr)
