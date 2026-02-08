@@ -40,6 +40,18 @@ This repository contains a personal [Neovim](https://neovim.io/) configuration w
 
 Place `init.lua` in your Neovim configuration directory and start Neovim. The plugin manager will install missing plugins on first run.
 
+### Python DAP .venv selection
+
+If you want DAP to use a project `.venv` (when it contains `debugpy`), set one of these globals before plugins load:
+
+```lua
+-- Always prefer .venv when present
+vim.g.dap_python_venv = true
+
+-- Or prompt each time a .venv is detected
+vim.g.dap_python_venv = "prompt"
+```
+
 ### Python testing
 
 - Run nearest test: `<leader>tt`
