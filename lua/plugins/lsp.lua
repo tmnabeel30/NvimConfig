@@ -128,14 +128,31 @@ return {
       return nil
     end
 
-    local function get_project_venv_root(workspace)
-      local candidates = { workspace .. "/.venv", workspace .. "/venv" }
-      for _, path in ipairs(candidates) do
-        if vim.fn.isdirectory(path) == 1 then
-          return path
+    local function find_venv_root(path)
+      local candidates = { ".venv", "venv", ".env", "env" }
+      for _, name in ipairs(candidates) do
+        local venv_path = lsp_util.path.join(path, name)
+        if vim.fn.isdirectory(venv_path) == 1 then
+          return venv_path
         end
       end
       return nil
+    end
+
+    local function get_project_venv_root(workspace)
+      local found = find_venv_root(workspace)
+      if found then
+        return found
+      end
+
+      lsp_util.search_ancestors(workspace, function(path)
+        found = find_venv_root(path)
+        if found then
+          return true
+        end
+      end)
+
+      return found
     end
 
     local function get_tool_venv_root(workspace)
@@ -224,8 +241,11 @@ return {
       if not python_path or python_path == "" then
         return {}
       end
-      local cmd = python_path
-        .. " -c \"import site; paths = site.getsitepackages() + [site.getusersitepackages()]; print('\\\\n'.join(paths))\""
+      local cmd = {
+        python_path,
+        "-c",
+        "import site; paths = site.getsitepackages() + [site.getusersitepackages()]; print('\\n'.join(paths))",
+      }
       local output = vim.fn.systemlist(cmd)
       if vim.v.shell_error ~= 0 then
         return {}
