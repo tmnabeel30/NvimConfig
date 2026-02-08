@@ -8,6 +8,7 @@ return {
   },
   config = function()
     local capabilities = require("cmp_nvim_lsp").default_capabilities()
+    local lsp_util = require("lspconfig.util")
 
     -- ==========================================
     -- DIAGNOSTICS (ENABLE + CONSISTENT)
@@ -145,7 +146,7 @@ return {
         local venv_name = vim.fn.fnamemodify(venv, ":t")
         local venv_path = vim.fn.fnamemodify(venv, ":h")
         if venv_name ~= "" and venv_path ~= "" then
-          return venv_path, venv_name
+          return venv_path, venv_name, venv
         end
       end
 
@@ -153,25 +154,57 @@ return {
       for _, name in ipairs(candidates) do
         local venv_dir = workspace .. "/" .. name
         if vim.fn.isdirectory(venv_dir) == 1 then
-          return workspace, name
+          return workspace, name, venv_dir
         end
       end
 
-      return nil, nil
+      return nil, nil, nil
+    end
+
+    local function get_venv_site_packages(venv_root)
+      if not venv_root or venv_root == "" then
+        return {}
+      end
+      local site_packages = {}
+      local patterns = { "lib/python*/site-packages", "Lib/site-packages" }
+      for _, pattern in ipairs(patterns) do
+        local matches = vim.fn.globpath(venv_root, pattern, false, true)
+        for _, match in ipairs(matches) do
+          table.insert(site_packages, match)
+        end
+      end
+      return site_packages
     end
 
     vim.lsp.config("pyright", {
       capabilities = capabilities,
+      root_dir = function(fname)
+        return lsp_util.root_pattern(
+          "pyproject.toml",
+          "setup.py",
+          "setup.cfg",
+          "requirements.txt",
+          "Pipfile",
+          ".venv",
+          "venv",
+          ".git"
+        )(fname) or lsp_util.path.dirname(fname)
+      end,
       on_new_config = function(config, root_dir)
         local python_path = get_python_path(root_dir)
-        local venv_path, venv_name = get_python_venv(root_dir)
+        local venv_path, venv_name, venv_root = get_python_venv(root_dir)
         config.settings = config.settings or {}
         config.settings.python = config.settings.python or {}
         config.settings.python.pythonPath = python_path
         config.settings.python.defaultInterpreterPath = python_path
+        config.settings.python.analysis = config.settings.python.analysis or {}
+        config.settings.python.analysis.extraPaths = config.settings.python.analysis.extraPaths or {}
         if venv_path and venv_name then
           config.settings.python.venvPath = venv_path
           config.settings.python.venv = venv_name
+        end
+        for _, path in ipairs(get_venv_site_packages(venv_root)) do
+          table.insert(config.settings.python.analysis.extraPaths, path)
         end
       end,
       settings = {
