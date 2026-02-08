@@ -10,6 +10,7 @@ return {
         "black",
         "isort",
         "ruff",
+        "mypy",
         "stylua",
         "prettier",
         "clang-format",

@@ -19,6 +19,7 @@ This repository contains a personal [Neovim](https://neovim.io/) configuration w
   - Autocompletion through `nvim-cmp` and `LuaSnip`
   - Preconfigured `clangd` command to correctly resolve standard library headers
 - **Debugging**: `nvim-dap`, `nvim-dap-ui`, `nvim-dap-python`, and `nvim-dap-virtual-text`.
+- **Python workflow**: `pyright`, `ruff`, `black`, `isort`, `mypy`, plus `neotest` with the pytest adapter.
 - **Java support**: `nvim-jdtls` with an auto-generated ftplugin and a helper to run Spring Boot applications (`<leader>sr`).
 - **LeetCode integration**: `leetcode.nvim` for practicing coding problems.
 - **Key mappings**
@@ -26,6 +27,7 @@ This repository contains a personal [Neovim](https://neovim.io/) configuration w
   - `<C-p>` opens file search
   - `<F5>` compiles and runs the current C++ file
   - `<leader>b` / `<leader>d` / `<leader>n` for debugging commands
+  - `<leader>tt` / `<leader>tT` / `<leader>ts` / `<leader>to` for Python test runs and output
 - **Autocommands**
   - Automatically saves buffers on leave or focus lost
   - Provides a basic C++ template when creating a new `*.cpp` file
@@ -38,3 +40,9 @@ This repository contains a personal [Neovim](https://neovim.io/) configuration w
 
 Place `init.lua` in your Neovim configuration directory and start Neovim. The plugin manager will install missing plugins on first run.
 
+### Python testing
+
+- Run nearest test: `<leader>tt`
+- Run current file: `<leader>tT`
+- Stop current run: `<leader>ts`
+- Open last test output: `<leader>to`
