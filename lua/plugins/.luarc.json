@@ -1,0 +1,9 @@
+{
+    "diagnostics.globals": [
+        "require",
+        "vim"
+    ],
+    "diagnostics.disable": [
+        "undefined-field"
+    ]
+}

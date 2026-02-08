@@ -1,0 +1,40 @@
+# MyNvim Configuration
+
+This repository contains a personal [Neovim](https://neovim.io/) configuration written in Lua. It uses [lazy.nvim](https://github.com/folke/lazy.nvim) as the plugin manager and includes a collection of plugins and settings aimed at modern C++ and Java development.
+
+## Features
+
+- **Core options**: relative line numbers, system clipboard, smart indentation, persistent undo, and more.
+- **Plugin management**: automatic installation and setup through `lazy.nvim`.
+- **User interface**
+  - `kanagawa.nvim` colorscheme
+  - File explorer via `nvim-tree`
+  - Fuzzy finding with `telescope.nvim`
+  - Automatic bracket/quote pairing using `nvim-autopairs`
+  - Code highlighting and text objects powered by `nvim-treesitter`
+- **Git integration**: `gitsigns.nvim` and `vim-fugitive`.
+- **LSP and completion**
+  - `mason.nvim` to install language servers
+  - `nvim-lspconfig` with preset servers including `clangd`, `lua_ls`, `bashls`, `yamlls` and `jsonls`
+  - Autocompletion through `nvim-cmp` and `LuaSnip`
+  - Preconfigured `clangd` command to correctly resolve standard library headers
+- **Debugging**: `nvim-dap`, `nvim-dap-ui`, `nvim-dap-python`, and `nvim-dap-virtual-text`.
+- **Java support**: `nvim-jdtls` with an auto-generated ftplugin and a helper to run Spring Boot applications (`<leader>sr`).
+- **LeetCode integration**: `leetcode.nvim` for practicing coding problems.
+- **Key mappings**
+  - `<C-n>` toggles the tree view
+  - `<C-p>` opens file search
+  - `<F5>` compiles and runs the current C++ file
+  - `<leader>b` / `<leader>d` / `<leader>n` for debugging commands
+- **Autocommands**
+  - Automatically saves buffers on leave or focus lost
+  - Provides a basic C++ template when creating a new `*.cpp` file
+  - Treats `.h` and `.hpp` as C++ headers
+- **Miscellaneous**
+  - `dapui` automatically opens and closes alongside debugging sessions
+  - Prints a confirmation message when the configuration loads
+
+## Usage
+
+Place `init.lua` in your Neovim configuration directory and start Neovim. The plugin manager will install missing plugins on first run.
+
