@@ -108,57 +108,101 @@ return {
     })
 
     -- PYTHON - TYPE CHECKING (BASIC) + LINTING (RUFF)
-    local function get_python_path(workspace)
-      local venv = vim.env.VIRTUAL_ENV
-      if venv and venv ~= "" then
-        local venv_python = venv .. "/bin/python"
-        if vim.fn.filereadable(venv_python) == 1 then
-          return venv_python
-        end
-        local venv_python_win = venv .. "/Scripts/python.exe"
-        if vim.fn.filereadable(venv_python_win) == 1 then
-          return venv_python_win
+    local function systemlist_in_dir(cmd, dir)
+      local full_cmd = "cd " .. vim.fn.shellescape(dir) .. " && " .. cmd
+      local output = vim.fn.systemlist(full_cmd)
+      if vim.v.shell_error ~= 0 then
+        return nil
+      end
+      return output
+    end
+
+    local function get_env_venv_root()
+      local env_vars = { "VIRTUAL_ENV", "CONDA_PREFIX", "UV_PROJECT_ENVIRONMENT" }
+      for _, var in ipairs(env_vars) do
+        local value = vim.env[var]
+        if value and value ~= "" and vim.fn.isdirectory(value) == 1 then
+          return value
         end
       end
+      return nil
+    end
 
-      local candidates = {
-        workspace .. "/.venv/bin/python",
-        workspace .. "/.venv/bin/python3",
-        workspace .. "/venv/bin/python",
-        workspace .. "/venv/bin/python3",
-        workspace .. "/.venv/Scripts/python.exe",
-        workspace .. "/venv/Scripts/python.exe",
-      }
-
+    local function get_project_venv_root(workspace)
+      local candidates = { workspace .. "/.venv", workspace .. "/venv" }
       for _, path in ipairs(candidates) do
-        if vim.fn.filereadable(path) == 1 then
+        if vim.fn.isdirectory(path) == 1 then
           return path
         end
       end
-
-      local system_python = vim.fn.exepath("python3")
-      return system_python ~= "" and system_python or "python"
+      return nil
     end
 
-    local function get_python_venv(workspace)
-      local venv = vim.env.VIRTUAL_ENV
-      if venv and venv ~= "" then
-        local venv_name = vim.fn.fnamemodify(venv, ":t")
-        local venv_path = vim.fn.fnamemodify(venv, ":h")
-        if venv_name ~= "" and venv_path ~= "" then
-          return venv_path, venv_name, venv
+    local function get_tool_venv_root(workspace)
+      local pyproject = workspace .. "/pyproject.toml"
+      if vim.fn.filereadable(pyproject) == 1 and vim.fn.executable("poetry") == 1 then
+        local lines = vim.fn.readfile(pyproject, "", 200)
+        for _, line in ipairs(lines) do
+          if line:match("^%s*%[tool%.poetry%]") then
+            local output = systemlist_in_dir("poetry env info -p", workspace)
+            if output and output[1] and vim.fn.isdirectory(output[1]) == 1 then
+              return output[1]
+            end
+            break
+          end
         end
       end
 
-      local candidates = { ".venv", "venv" }
-      for _, name in ipairs(candidates) do
-        local venv_dir = workspace .. "/" .. name
-        if vim.fn.isdirectory(venv_dir) == 1 then
-          return workspace, name, venv_dir
+      if vim.fn.filereadable(workspace .. "/Pipfile") == 1 and vim.fn.executable("pipenv") == 1 then
+        local output = systemlist_in_dir("pipenv --venv", workspace)
+        if output and output[1] and vim.fn.isdirectory(output[1]) == 1 then
+          return output[1]
+        end
+      end
+
+      return nil
+    end
+
+    local function get_python_venv(workspace)
+      local venv_root = get_env_venv_root()
+        or get_project_venv_root(workspace)
+        or get_tool_venv_root(workspace)
+
+      if venv_root then
+        local venv_name = vim.fn.fnamemodify(venv_root, ":t")
+        local venv_path = vim.fn.fnamemodify(venv_root, ":h")
+        if venv_name ~= "" and venv_path ~= "" then
+          return venv_path, venv_name, venv_root
         end
       end
 
       return nil, nil, nil
+    end
+
+    local function get_python_path(workspace)
+      local _, _, venv_root = get_python_venv(workspace)
+      if venv_root then
+        local candidates = {
+          venv_root .. "/bin/python",
+          venv_root .. "/bin/python3",
+          venv_root .. "/Scripts/python.exe",
+        }
+        for _, path in ipairs(candidates) do
+          if vim.fn.filereadable(path) == 1 then
+            return path
+          end
+        end
+      end
+
+      local system_candidates = { "python3.12", "python3.11", "python3", "python" }
+      for _, name in ipairs(system_candidates) do
+        local system_python = vim.fn.exepath(name)
+        if system_python ~= "" then
+          return system_python
+        end
+      end
+
+      return "python"
     end
 
     local function get_venv_site_packages(venv_root)
