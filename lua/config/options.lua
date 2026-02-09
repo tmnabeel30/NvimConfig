@@ -92,6 +92,16 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
 -- ==========================================
+-- TREESITTER COMPAT (Neovim < 0.10)
+-- ==========================================
+if vim.treesitter and vim.treesitter.language then
+	local language = vim.treesitter.language
+	if not language.ft_to_lang and language.get_lang then
+		language.ft_to_lang = language.get_lang
+	end
+end
+
+-- ==========================================
 -- PYTHON INDENTATION (STRICT 4 SPACES)
 -- ==========================================
 vim.api.nvim_create_autocmd("FileType", {

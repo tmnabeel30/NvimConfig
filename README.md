@@ -20,6 +20,7 @@ This repository contains a personal [Neovim](https://neovim.io/) configuration w
   - Preconfigured `clangd` command to correctly resolve standard library headers
 - **Debugging**: `nvim-dap`, `nvim-dap-ui`, `nvim-dap-python`, and `nvim-dap-virtual-text`.
 - **Python workflow**: `pyright`, `ruff`, `black`, `isort`, `mypy`, plus `neotest` with the pytest adapter.
+- **Jupyter notebooks**: `magma-nvim` for running notebook cells and `jupytext.nvim` for editing `.ipynb` files.
 - **Java support**: `nvim-jdtls` with an auto-generated ftplugin and a helper to run Spring Boot applications (`<leader>sr`).
 - **LeetCode integration**: `leetcode.nvim` for practicing coding problems.
 - **Key mappings**
@@ -64,6 +65,22 @@ vim.g.dap_python_venv = "prompt"
 - Run current file: `<leader>tT`
 - Stop current run: `<leader>ts`
 - Open last test output: `<leader>to`
+
+### Jupyter notebooks
+
+Install the required Python packages:
+
+```sh
+python -m pip install --user pynvim jupyter_client jupytext
+```
+
+Then in Neovim:
+
+- Initialize a kernel for the current buffer: `<leader>mi`
+- Run the current line: `<leader>ml`
+- Run the current cell: `<leader>mc`
+- Run a visual selection: `<leader>mv`
+- Show the last output: `<leader>mo`
 
 ### GitHub issues/PRs with Octo.nvim
 
