@@ -12,7 +12,7 @@ This repository contains a personal [Neovim](https://neovim.io/) configuration w
   - Fuzzy finding with `telescope.nvim`
   - Automatic bracket/quote pairing using `nvim-autopairs`
   - Code highlighting and text objects powered by `nvim-treesitter`
-- **Git integration**: `gitsigns.nvim`, `vim-fugitive`, and `octo.nvim` for GitHub issues/PRs.
+- **Git integration**: `gitsigns.nvim`, `vim-fugitive`, `octo.nvim` for GitHub issues/PRs, plus `git-conflict.nvim` for resolving merge conflicts directly in Neovim (including Azure DevOps repos).
 - **LSP and completion**
   - `mason.nvim` to install language servers
   - `nvim-lspconfig` with preset servers including `clangd`, `lua_ls`, `bashls`, `yamlls` and `jsonls`
@@ -28,6 +28,12 @@ This repository contains a personal [Neovim](https://neovim.io/) configuration w
   - `<F5>` compiles and runs the current C++ file
   - `<leader>b` / `<leader>d` / `<leader>n` for debugging commands
   - `<leader>tt` / `<leader>tT` / `<leader>ts` / `<leader>to` for Python test runs and output
+  - Merge conflict resolution:
+    - `<leader>gco` keep ours
+    - `<leader>gct` keep theirs
+    - `<leader>gcb` keep both
+    - `<leader>gcn` keep none
+    - `[x` / `]x` jump to previous/next conflict
 - **Autocommands**
   - Automatically saves buffers on leave or focus lost
   - Provides a basic C++ template when creating a new `*.cpp` file
