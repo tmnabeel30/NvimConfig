@@ -12,7 +12,7 @@ This repository contains a personal [Neovim](https://neovim.io/) configuration w
   - Fuzzy finding with `telescope.nvim`
   - Automatic bracket/quote pairing using `nvim-autopairs`
   - Code highlighting and text objects powered by `nvim-treesitter`
-- **Git integration**: `gitsigns.nvim` and `vim-fugitive`.
+- **Git integration**: `gitsigns.nvim`, `vim-fugitive`, and `octo.nvim` for GitHub issues/PRs.
 - **LSP and completion**
   - `mason.nvim` to install language servers
   - `nvim-lspconfig` with preset servers including `clangd`, `lua_ls`, `bashls`, `yamlls` and `jsonls`
@@ -58,3 +58,17 @@ vim.g.dap_python_venv = "prompt"
 - Run current file: `<leader>tT`
 - Stop current run: `<leader>ts`
 - Open last test output: `<leader>to`
+
+### GitHub issues/PRs with Octo.nvim
+
+`octo.nvim` uses the GitHub CLI (`gh`) for authentication. After installing `gh`, run:
+
+```sh
+gh auth login
+```
+
+Then in Neovim:
+
+- Open the Octo command picker: `<leader>gO`
+- List pull requests: `<leader>gpr`
+- List issues: `<leader>gpi`
