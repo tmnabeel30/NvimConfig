@@ -80,7 +80,11 @@ Then in Neovim:
 - Run the current line: `<leader>ml`
 - Run the current cell: `<leader>mc`
 - Run a visual selection: `<leader>mv`
+- Run a motion/text object: `<leader>mr`
+- Run the full buffer: `<leader>mA`
 - Show the last output: `<leader>mo`
+
+Notebook-like cell blocks are styled when you use cell markers such as `# %%` (or `# In[1]`). The marker line gets a title badge plus a separator line, and the active cell is highlighted for quick visual scanning.
 
 ### GitHub issues/PRs with Octo.nvim
 
